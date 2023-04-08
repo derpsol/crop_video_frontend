@@ -3,7 +3,6 @@ import ReactPlayer from "react-player";
 import { Box } from "@mui/material";
 
 const VideoPlayer = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [cropWidth, setCropWidth] = useState(50);
   const [cropHeight, setCropHeight] = useState(28);
   const [cropStartX, setCropStartX] = useState(0);
@@ -45,7 +44,6 @@ const VideoPlayer = () => {
   };
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    setMousePosition({ x: event.clientX, y: event.clientY });
     let deltaX = event.clientX - cropStartX;
     let deltaY = event.clientY - cropStartY;
     if (down) {
