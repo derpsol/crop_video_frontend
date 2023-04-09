@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import ReactPlayer from "react-player";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Skeleton } from "@mui/material";
 
 const VideoPlayer = () => {
   const [cropWidth, setCropWidth] = useState(50);
@@ -12,6 +12,7 @@ const VideoPlayer = () => {
   const [zoomMT, setZoomMT] = useState(0);
   const [zoomML, setZoomML] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
 
   const player1Ref = useRef<ReactPlayer | null>(null);
   const player2Ref = useRef<ReactPlayer | null>(null);
@@ -35,7 +36,7 @@ const VideoPlayer = () => {
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     let deltaX = event.clientX - 20;
     let deltaY = event.clientY - 20;
-    
+
     setMarginTop(deltaY);
     setMarginLeft(deltaX);
     setZoomMT((deltaY / cropHeight) * 286);
@@ -44,53 +45,108 @@ const VideoPlayer = () => {
     setZoomHeight((286 * 286) / cropHeight);
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFileUrl(reader.result as string);
+        setPlaying(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <Box mt="20px" ml="20px" display="flex" flexDirection="column">
       <Box display="flex" overflow="hidden">
-        <Box
-          position="relative"
-          width="500px"
-          height="286px"
-          onMouseMove={handleMouseMove}
-        >
-          <ReactPlayer
-            ref={player1Ref}
-            url="./video.mp4"
-            playing={playing}
-            controls
-            width="100%"
-            height="100%"
-          />
+        {fileUrl ? (
           <Box
-            position="absolute"
-            top={`${marginTop}px`}
-            left={`${marginLeft}px`}
-            width={cropWidth}
-            height={cropHeight}
-            onWheel={handleWheel}
-            sx={{
-              border: "2px dotted red",
-              borderRadius: "2px",
-            }}
-          />
-        </Box>
-        <Box ml="20px" width="500px" height="286px" overflow="hidden">
-          <Box ml={`-${zoomML}px`} mt={`-${zoomMT}px`}>
+            position="relative"
+            width="500px"
+            height="286px"
+            onMouseMove={handleMouseMove}
+          >
             <ReactPlayer
-              ref={player2Ref}
-              url="./video.mp4"
+              ref={player1Ref}
+              url={fileUrl}
               playing={playing}
               controls
-              width={zoomWidth}
-              height={zoomHeight}
+              width="100%"
+              height="100%"
+            />
+
+            <Box
+              position="absolute"
+              top={`${marginTop}px`}
+              left={`${marginLeft}px`}
+              width={cropWidth}
+              height={cropHeight}
+              onWheel={handleWheel}
+              sx={{
+                border: "2px dotted red",
+                borderRadius: "2px",
+              }}
             />
           </Box>
-        </Box>
+        ) : (
+          <Skeleton width="500px" height="286px" sx={{ ml: "20px" }} />
+        )}
+        {fileUrl ? (
+          <Box ml="20px" width="500px" height="286px" overflow="hidden">
+            <Box ml={`-${zoomML}px`} mt={`-${zoomMT}px`}>
+              <ReactPlayer
+                ref={player2Ref}
+                url={fileUrl}
+                playing={playing}
+                controls
+                width={zoomWidth}
+                height={zoomHeight}
+              />
+            </Box>
+          </Box>
+        ) : (
+          <Skeleton width="500px" height="286px" sx={{ ml: "20px" }} />
+        )}
       </Box>
       <Box mt="30px">
-        <Button variant="contained" color="success" onClick={handlePlayPause}>
-          {playing ? "Pause" : "Play"}
-        </Button>
+        {fileUrl ? (
+          <Button
+            variant="contained"
+            color={playing ? "error" : "success"}
+            onClick={handlePlayPause}
+          >
+            {playing ? "Pause" : "Play"}
+          </Button>
+        ) : (
+          <label
+            htmlFor="upload-video"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "6px 16px",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              lineHeight: 1.75,
+              letterSpacing: "0.02857em",
+              textTransform: "uppercase",
+              color: "white",
+              backgroundColor: "#3f51b5",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Upload video
+            <input
+              id="upload-video"
+              type="file"
+              accept="video/*"
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
+          </label>
+        )}
       </Box>
     </Box>
   );
