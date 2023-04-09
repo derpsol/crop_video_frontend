@@ -12,23 +12,12 @@ const VideoPlayer = () => {
   const [zoomMT, setZoomMT] = useState(0);
   const [zoomML, setZoomML] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [played, setPlayed] = useState(0);
 
   const player1Ref = useRef<ReactPlayer | null>(null);
   const player2Ref = useRef<ReactPlayer | null>(null);
 
   const handlePlayPause = () => {
     setPlaying(!playing);
-  };
-
-  const handleProgress = (state: any) => {
-    setPlayed(state.played);
-  };
-
-  const handleClickSync = () => {
-    if (player1Ref.current && player2Ref.current) {
-      player2Ref.current.seekTo(played);
-    }
   };
 
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
@@ -71,7 +60,6 @@ const VideoPlayer = () => {
             controls
             width="100%"
             height="100%"
-            onProgress={handleProgress}
           />
           <Box
             position="absolute"
