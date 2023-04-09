@@ -5,8 +5,8 @@ import { Box, Button } from "@mui/material";
 const VideoPlayer = () => {
   const [cropWidth, setCropWidth] = useState(50);
   const [cropHeight, setCropHeight] = useState(28);
-  const [cropStartX, setCropStartX] = useState(0);
-  const [cropStartY, setCropStartY] = useState(0);
+  const [cropStartX, setCropStartX] = useState(20);
+  const [cropStartY, setCropStartY] = useState(20);
   const [down, setDown] = useState(false);
   const [rightDown, setRightDown] = useState(false);
   const [prevWidth, setPrevWidth] = useState(0);
@@ -40,26 +40,11 @@ const VideoPlayer = () => {
   };
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    setCropStartX(event.clientX);
-    setCropStartY(event.clientY);
-    if (event.button === 2) {
-      setPrevMT(marginTop);
-      setPrevML(marginLeft);
-      setRightDown(true);
-    } else {
-      setPrevWidth(cropWidth);
-      setPrevHeight(cropHeight);
-      setDown(true);
-    }
+    
   };
 
   const handleMouseUp = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.button === 2) {
-      event.preventDefault();
-      setRightDown(false);
-    } else {
-      setDown(false);
-    }
+    
   };
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -77,11 +62,11 @@ const VideoPlayer = () => {
       setZoomHeight((286 * 286) / cropHeight);
       setZoomMT((marginTop / cropHeight) * 286);
       setZoomML((marginLeft / cropWidth) * 500);
-    } else if (rightDown) {
-      setMarginTop(prevMT + deltaY);
-      setMarginLeft(prevML + deltaX);
-      setZoomMT((marginTop / cropHeight) * 286);
-      setZoomML((marginLeft / cropWidth) * 500);
+    } else {
+      setMarginTop(deltaY);
+      setMarginLeft(deltaX);
+      setZoomMT((deltaY / cropHeight) * 286);
+      setZoomML((deltaX / cropWidth) * 500);
     }
   };
 
@@ -90,13 +75,16 @@ const VideoPlayer = () => {
   };
 
   return (
-    <Box mt="20px" display="flex" flexDirection="column" alignItems="center">
-      <Box display="flex">
+    <Box mt="20px" ml="20px" display="flex" flexDirection="column">
+      <Box display="flex" overflow="hidden">
         <Box
           position="relative"
           onContextMenu={handleContextMenu}
           width="500px"
           height="286px"
+          onMouseMove={handleMouseMove}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
         >
           <ReactPlayer
             ref={player1Ref}
@@ -108,9 +96,6 @@ const VideoPlayer = () => {
             onProgress={handleProgress}
           />
           <Box
-            onMouseMove={handleMouseMove}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
             position="absolute"
             top={`${marginTop}px`}
             left={`${marginLeft}px`}
@@ -139,7 +124,12 @@ const VideoPlayer = () => {
         <Button variant="contained" color="success" onClick={handlePlayPause}>
           {playing ? "Pause" : "Play"}
         </Button>
-        <Button variant="contained" color="success" onClick={handleClickSync} sx={{ ml: '12px'}}>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={handleClickSync}
+          sx={{ ml: "12px" }}
+        >
           Sync video 2
         </Button>
       </Box>
